@@ -1,4 +1,4 @@
-# pangolin_project
+# Pangolin Project
 I've stored the downloaded data in "downloads" on alpine through the use of Global Connect Personal. From here I'll try to replicate what was done in class to fufil the following goals below. 
 
 # My goals: 
