@@ -5,9 +5,9 @@ I've stored the downloaded data in "downloads" on alpine through the use of Glob
 
 ~~1. Trimming the SNPS~~
 
-~~2. Filtering the SNPs~~
+~~2.Aligning the SNPs to the reference genome~~
 
-~~3. Aligning the SNPs to the reference genome~~
+3.Filtering the SNPs & indels (I am redoing the filtering because it seems that there has only been a quality filter, and I'm not sure if the snps and indels have been filtered.)
 
 5. creating a PCA for the dataset
  
