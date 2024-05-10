@@ -1,0 +1,63 @@
+---
+title: "pangolin_project_writeup"
+author: "zhimei"
+date: "2024-04-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(sf)            
+library(tidyverse)
+library(ggspatial)
+library(ggplot2)
+```
+
+# Introduction
+Pangolins are an endangered species and they are one of the most traffic species for their scales. The paper "genomic analyses reveal poaching hotspots and illegal trade in pangolins from Africa to Asia" attempts to use confiscated pangolin scales as well as other tissue matter such as blood dots and muscles from pangolins in an attempt to understand where poaching may be a problem for the pangolins. This was specific to the white-bellied pangolin which is also known as a tree pangolin which is the most common widespread species in Africa.  
+
+Using the files provided by the aforementioned paper, I hope to run a PCA and create a map of the confiscated samples that they have obtained. 
+
+# Material & Methods 
+
+The paper provides a .vcf files which have been filtered for quality. It was, however unclear if the SNPS and indels were filtered for. Therefore, a Snakemake workflow to filter for the SNPS and indels ran on the vcf file, not before bcftools was used to gzip the file and Tabix was used to index the bcf which provided a .tbi file. 
+
+Once completed the filter was ran, the a subset of the vcf file for the samples with the highest quality of reads was created for the 1 to 57 of the HiC-scaffold samples. The subset was saved as a subset txt file and this was then used to provided a scaffold group which is required for the Mega Post BCF exploratory Snakeflows workflow to run. Below was the code for the scaffold table. pangolin_scafold.R was the file in which the name of samples and the length of the samples were coppied over from the vcf file.
+
+```{r}
+sg <- read_table(r"(C:\Users\zmmar\Documents\pangolin_scafold.R)", col_names = c("chrom", "stop", "junk")) %>% 
+  select(-junk) %>%
+  mutate(
+    start = 1, 
+    angsd_chrom = str_replace_all(chrom, "_", "-"), 
+    mh_label = 1:n(), 
+    id=sprintf("scaf_group_%03d", 1:n()) 
+  ) %>%
+    select(id,chrom,start,stop,angsd_chrom,mh_label)
+
+write_tsv(sg, file = r"(C:\Users\zmmar\Documents\pangolin_scaftable.tsv)")
+```
+
+This data files have also been able to provide additional files that provide the list of samples with metadata on the confiscation and origin of the pangolins. From there this has allowed me to create the following map below, which visualizes where the scales have been confiscated from and the origin of the samples by colour. 
+
+```{r}
+pangolin_data=read.csv(r"(C:\Users\zmmar\Downloads\doi_10_5061_dryad_zkh1893g7__v20231219\PangHKsamples2.csv)")
+
+ggplot(data=pangolin_data, aes(x=LONG,y=LAT))+
+  annotation_map_tile(type = "osm", progress = "none")+
+  geom_spatial_point(aes(colour=ORIGIN), alpha = 1)+
+  labs(y="Latitude",x="Longitude")+
+  annotation_north_arrow(location = "bl", which_north = "true", twidth = unit(1,"cm"), style = north_arrow_nautical)+
+  theme_bw()
+```
+
+
+
+
+
+
+
+
